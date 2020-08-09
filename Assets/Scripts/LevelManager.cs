@@ -12,6 +12,9 @@ public class LevelManager : MonoBehaviour
     public static bool isGameOver = false;
     public Text scoreText;
     public Text gameText;
+    internal static int playerAxeDamage = 10;
+    public GameObject leftDoor, rightDoor;
+    public AudioClip bossLaughSFX;
 
     private void Awake()
     {
@@ -19,12 +22,18 @@ public class LevelManager : MonoBehaviour
         isGameOver = false;
         gameText.gameObject.SetActive(false);
         SetScoreText();
+        if (string.IsNullOrEmpty(nextLevel))
+        {
+            leftDoor.GetComponent<Animator>().SetTrigger("leftDoorOpen");
+            rightDoor.GetComponent<Animator>().SetTrigger("rightOpen");
+        }
     }
 
     public void SetScoreText()
     {
         scoreText.text = "Skeletons Remaining: " + numSkeletonsRemaining.ToString();
         if (numSkeletonsRemaining <= 0) LevelWon();
+        else if (string.IsNullOrEmpty(nextLevel) && numSkeletonsRemaining == 1) BossTime();
     }
 
 
@@ -35,7 +44,7 @@ public class LevelManager : MonoBehaviour
         gameText.gameObject.SetActive(true);
 
         Camera.main.GetComponent<AudioSource>().pitch = 1;
-        //AudioSource.PlayClipAtPoint(gameOverSFX, Camera.main.transform.position);
+        if (string.IsNullOrEmpty(nextLevel)) AudioSource.PlayClipAtPoint(bossLaughSFX, Camera.main.transform.position);
 
         Invoke("LoadCurrentLevel", 2);
     }
@@ -60,5 +69,10 @@ public class LevelManager : MonoBehaviour
     void LoadCurrentLevel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    void BossTime()
+    {
+
     }
 }
